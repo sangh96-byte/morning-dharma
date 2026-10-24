@@ -1,4 +1,4 @@
-const CACHE_NAME = 'morning-prayer-v1';
+const CACHE_NAME = 'morning-prayer-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +6,8 @@ const ASSETS = [
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/icon-maskable-512.png',
-  './assets/hero.webp'
+  './assets/hero.webp',
+  './assets/moktak.mp3'
 ];
 
 self.addEventListener('install', (event) => {

@@ -1307,44 +1307,50 @@
       }
     }
 
-    // 맑은 목탁 소리 (Woodblock) 합성
-    function playMoktakSound(freq = 620, volume = 0.8) {
+    // 실제 사찰 나무 목탁 소리 (Real Acoustic Moktak) 사전 로드 및 초저지연 재생
+    let realMoktakBuffer = null;
+    function preloadRealMoktak() {
+      try {
+        initAudio();
+        fetch('assets/moktak.mp3')
+          .then(res => res.arrayBuffer())
+          .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
+          .then(decoded => {
+            realMoktakBuffer = decoded;
+          })
+          .catch(err => {
+            console.warn('Real moktak buffer load:', err);
+          });
+      } catch(e) {}
+    }
+
+    // 실제 나무 목탁 소리 (Real Moktak Sound)
+    function playMoktakSound(freq = 620, volume = 0.90) {
       if (isSoundMuted) return;
       try {
         initAudio();
-        const now = audioCtx.currentTime;
-
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now);
-        osc.frequency.exponentialRampToValueAtTime(freq * 0.7, now + 0.08);
-
-        // 빠른 타격과 부드러운 감쇠
-        gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(volume, now + 0.003);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
-
-        // 바디 공명 필터
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.value = freq;
-        filter.Q.value = 4.0;
-
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        osc.start(now);
-        osc.stop(now + 0.16);
+        if (realMoktakBuffer) {
+          const source = audioCtx.createBufferSource();
+          const gain = audioCtx.createGain();
+          gain.gain.value = volume;
+          source.buffer = realMoktakBuffer;
+          source.connect(gain);
+          gain.connect(audioCtx.destination);
+          source.start(0);
+        } else {
+          // Fallback 오디오
+          const a = new Audio('assets/moktak.mp3');
+          a.volume = Math.min(1.0, volume);
+          a.play().catch(() => {});
+          preloadRealMoktak();
+        }
 
         // 폰 진동 (갤럭시 햅틱 피드백)
         if (navigator.vibrate) {
           navigator.vibrate(15);
         }
       } catch (e) {
-        console.warn('Audio error:', e);
+        console.warn('Moktak audio error:', e);
       }
     }
 
