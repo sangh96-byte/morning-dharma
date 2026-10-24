@@ -430,6 +430,125 @@
       transform: scale(1.3);
     }
 
+    /* 독송 오디오 플레이어 카드 (3번, 4번, 6번, 7번 등) */
+    .sutra-audio-card {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.16), rgba(30, 26, 22, 0.95));
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .audio-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .audio-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .audio-badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 11px;
+      font-weight: 700;
+      color: #171513;
+      background: linear-gradient(135deg, #D4AF37, #E5C158);
+      padding: 2px 8px;
+      border-radius: 10px;
+      letter-spacing: 0.3px;
+    }
+
+    .audio-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .audio-play-main-btn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #D4AF37, #B8860B);
+      color: #171513;
+      border: none;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.4);
+      transition: all 0.15s ease;
+      font-family: 'Noto Sans KR', sans-serif;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .audio-play-main-btn:active {
+      transform: scale(0.96);
+      filter: brightness(1.1);
+    }
+
+    .audio-progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .audio-time {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      min-width: 38px;
+      font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+    }
+
+    .audio-time:last-child {
+      text-align: right;
+    }
+
+    .audio-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .audio-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #D4AF37;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(212, 175, 55, 0.8);
+      transition: transform 0.1s ease;
+    }
+
+    .audio-slider::-webkit-slider-thumb:active {
+      transform: scale(1.3);
+    }
+
     /* 경전 텍스트 뷰어 (글씨 크기, 가독성 극대화) */
     .sutra-container {
       background: var(--bg-card);
@@ -1070,12 +1189,12 @@
         <button class="day-tab-btn" id="dayBtn-sun" onclick="selectSutraDay('sun')">일 (법회안내)</button>
       </div>
 
-      <!-- 금강경 독송 음원 플레이어 바 (1일차 및 음원 제공 요일) -->
+      <!-- 예불 순서별 독송 음원 플레이어 바 (3번, 4번, 6번, 7번 등) -->
       <div id="sutraAudioPlayerBar" class="sutra-audio-card" style="display: none;">
         <div class="audio-card-header">
           <div class="audio-info">
-            <span class="audio-badge">🎧 추천 독경 음원</span>
-            <span class="audio-title" id="sutraAudioTitle">금강경 1일차 목탁 독송 (10분 46초)</span>
+            <span class="audio-badge" id="sutraAudioBadge">🎧 독송 음원</span>
+            <span class="audio-title" id="sutraAudioTitle">독송 음원</span>
           </div>
           <button class="audio-play-main-btn" id="sutraAudioPlayBtn" onclick="toggleSutraAudio()">
             ▶ 독송 듣기
@@ -1084,9 +1203,9 @@
         <div class="audio-progress-wrap">
           <span class="audio-time" id="sutraAudioCurrentTime">00:00</span>
           <input type="range" class="audio-slider" id="sutraAudioSlider" min="0" max="100" value="0" oninput="seekSutraAudio(this.value)">
-          <span class="audio-time" id="sutraAudioDuration">10:46</span>
+          <span class="audio-time" id="sutraAudioDuration">--:--</span>
         </div>
-        <audio id="sutraAudioElem" preload="metadata" src="assets/sutra_day1.mp3" ontimeupdate="onSutraAudioTimeUpdate()" onended="onSutraAudioEnded()"></audio>
+        <audio id="sutraAudioElem" preload="metadata" onloadedmetadata="onSutraAudioLoadedMetadata()" ontimeupdate="onSutraAudioTimeUpdate()" onended="onSutraAudioEnded()"></audio>
       </div>
 
       <!-- 경전 본문 뷰어 -->
@@ -1565,23 +1684,15 @@
 
         // 요일 탭 활성화 상태 동기화
         const dayCode = stepKey.replace('step7_', '');
-
-      const audioBar = document.getElementById('sutraAudioPlayerBar');
-      if (step === 7 && stepKey === 'step7_mon') {
-        if (audioBar) audioBar.style.display = 'block';
-      } else {
-        if (audioBar) {
-          audioBar.style.display = 'none';
-          stopSutraAudio();
-        }
-      }
-
         document.querySelectorAll('.day-tab-btn').forEach(btn => {
           btn.classList.toggle('active', btn.id === ('dayBtn-' + dayCode));
         });
       } else {
         if (daySelector) daySelector.style.display = 'none';
       }
+
+      // 순서별 독송 음원 플레이어 바 연동 (3번, 4번, 6번, 7번 등)
+      setupStepAudioPlayer(stepKey);
 
       const data = getSutraData(stepKey) || DEFAULT_SUTRAS[stepKey];
       if (!data) return;
@@ -1669,8 +1780,65 @@
 
     
     /* ========================================================
-       금강경 독송 오디오 플레이어 제어
+       순서별 독송 오디오 플레이어 제어 (3번, 4번, 6번, 7번 등)
        ======================================================== */
+    const PRAYER_STEP_AUDIOS = {
+      'step3': {
+        src: 'assets/step3_isan.m4a',
+        title: '3. 이산선사 발원문 (지용법사님)',
+        badge: '🎧 3번 발원문 독송 음원'
+      },
+      'step4': {
+        src: 'assets/step4_banya.m4a',
+        title: '4. 우리말 반야심경 (송광사)',
+        badge: '🎧 4번 반야심경 독송 음원'
+      },
+      'step6': {
+        src: 'assets/step6_doksong.m4a',
+        title: '6. 경전독송의식 (지용법사님)',
+        badge: '🎧 6번 독송의식 음원'
+      },
+      'step7_mon': {
+        src: 'assets/sutra_day1.mp3',
+        title: '7. 금강경 1일차 목탁 독송 (10분 46초)',
+        badge: '🎧 7번 금강경 1일차 추천 음원'
+      }
+    };
+    let currentLoadedAudioKey = null;
+
+    function setupStepAudioPlayer(stepKey) {
+      const audioBar = document.getElementById('sutraAudioPlayerBar');
+      const audioConfig = PRAYER_STEP_AUDIOS[stepKey];
+
+      if (audioConfig) {
+        if (audioBar) audioBar.style.display = 'block';
+        if (currentLoadedAudioKey !== stepKey) {
+          stopSutraAudio();
+          currentLoadedAudioKey = stepKey;
+          const audio = document.getElementById('sutraAudioElem');
+          const title = document.getElementById('sutraAudioTitle');
+          const badge = document.getElementById('sutraAudioBadge');
+          const curTime = document.getElementById('sutraAudioCurrentTime');
+          const durTime = document.getElementById('sutraAudioDuration');
+          const slider = document.getElementById('sutraAudioSlider');
+
+          if (audio) {
+            audio.src = audioConfig.src;
+            audio.load();
+          }
+          if (title) title.innerText = audioConfig.title;
+          if (badge) badge.innerText = audioConfig.badge;
+          if (curTime) curTime.innerText = '00:00';
+          if (durTime) durTime.innerText = '--:--';
+          if (slider) slider.value = 0;
+        }
+      } else {
+        if (audioBar) audioBar.style.display = 'none';
+        stopSutraAudio();
+        currentLoadedAudioKey = null;
+      }
+    }
+
     function toggleSutraAudio() {
       const audio = document.getElementById('sutraAudioElem');
       const btn = document.getElementById('sutraAudioPlayBtn');
@@ -1692,12 +1860,20 @@
       }
     }
 
+    function onSutraAudioLoadedMetadata() {
+      const audio = document.getElementById('sutraAudioElem');
+      const durTime = document.getElementById('sutraAudioDuration');
+      if (audio && durTime && !isNaN(audio.duration) && isFinite(audio.duration)) {
+        durTime.innerText = formatAudioTime(audio.duration);
+      }
+    }
+
     function onSutraAudioTimeUpdate() {
       const audio = document.getElementById('sutraAudioElem');
       const slider = document.getElementById('sutraAudioSlider');
       const curTime = document.getElementById('sutraAudioCurrentTime');
       const durTime = document.getElementById('sutraAudioDuration');
-      if (!audio || !slider || isNaN(audio.duration)) return;
+      if (!audio || !slider || isNaN(audio.duration) || !isFinite(audio.duration)) return;
 
       slider.value = (audio.currentTime / audio.duration) * 100;
       curTime.innerText = formatAudioTime(audio.currentTime);
@@ -1711,17 +1887,19 @@
         btn.style.background = '';
         btn.style.color = '';
       }
-      showToast('금강경 1일차 독경 음원을 모두 들으셨습니다. 성불하십시오! 🪷');
+      const audioConfig = PRAYER_STEP_AUDIOS[currentLoadedAudioKey];
+      const title = audioConfig ? audioConfig.title : '독송 음원';
+      showToast(`${title}을 모두 들으셨습니다. 성불하십시오! 🪷`);
     }
 
     function seekSutraAudio(val) {
       const audio = document.getElementById('sutraAudioElem');
-      if (!audio || isNaN(audio.duration)) return;
+      if (!audio || isNaN(audio.duration) || !isFinite(audio.duration)) return;
       audio.currentTime = (val / 100) * audio.duration;
     }
 
     function formatAudioTime(sec) {
-      if (isNaN(sec)) return "00:00";
+      if (isNaN(sec) || !isFinite(sec)) return "00:00";
       const m = Math.floor(sec / 60);
       const s = Math.floor(sec % 60);
       return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
@@ -1739,6 +1917,10 @@
         btn.style.background = '';
         btn.style.color = '';
       }
+      const slider = document.getElementById('sutraAudioSlider');
+      const curTime = document.getElementById('sutraAudioCurrentTime');
+      if (slider) slider.value = 0;
+      if (curTime) curTime.innerText = '00:00';
     }
 
     function startDailyPrayer() {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'morning-prayer-v2';
+const CACHE_NAME = 'morning-prayer-v3';
 const ASSETS = [
   './',
   './index.html',
