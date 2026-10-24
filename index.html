@@ -1205,7 +1205,7 @@
           <input type="range" class="audio-slider" id="sutraAudioSlider" min="0" max="100" value="0" oninput="seekSutraAudio(this.value)">
           <span class="audio-time" id="sutraAudioDuration">--:--</span>
         </div>
-        <audio id="sutraAudioElem" preload="metadata" onloadedmetadata="onSutraAudioLoadedMetadata()" ontimeupdate="onSutraAudioTimeUpdate()" onended="onSutraAudioEnded()"></audio>
+        <audio id="sutraAudioElem" playsinline webkit-playsinline preload="metadata" onloadedmetadata="onSutraAudioLoadedMetadata()" ontimeupdate="onSutraAudioTimeUpdate()" onended="onSutraAudioEnded()" onerror="onSutraAudioError(event)"></audio>
       </div>
 
       <!-- 경전 본문 뷰어 -->
@@ -1784,17 +1784,17 @@
        ======================================================== */
     const PRAYER_STEP_AUDIOS = {
       'step3': {
-        src: 'assets/step3_isan.m4a',
+        src: 'assets/step3_isan.mp3',
         title: '3. 이산선사 발원문 (지용법사님)',
         badge: '🎧 3번 발원문 독송 음원'
       },
       'step4': {
-        src: 'assets/step4_banya.m4a',
+        src: 'assets/step4_banya.mp3',
         title: '4. 우리말 반야심경 (송광사)',
         badge: '🎧 4번 반야심경 독송 음원'
       },
       'step6': {
-        src: 'assets/step6_doksong.m4a',
+        src: 'assets/step6_doksong.mp3',
         title: '6. 경전독송의식 (지용법사님)',
         badge: '🎧 6번 독송의식 음원'
       },
@@ -1845,15 +1845,36 @@
       if (!audio) return;
 
       if (audio.paused) {
-        audio.play().then(() => {
-          btn.innerHTML = '⏸️ 일시정지';
-          btn.style.background = '#e07a5f';
-          btn.style.color = '#fff';
-        }).catch(err => {
-          console.warn('Audio play error:', err);
-        });
+        btn.innerHTML = '⏳ 준비 중...';
+        btn.style.background = '#d4af37';
+        btn.style.color = '#171513';
+        
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            btn.innerHTML = '⏸️ 일시정지';
+            btn.style.background = '#e07a5f';
+            btn.style.color = '#fff';
+          }).catch(err => {
+            console.warn('Audio play error:', err);
+            btn.innerHTML = '▶ 독송 듣기';
+            btn.style.background = '';
+            btn.style.color = '';
+            showToast('음원을 불러오는 중입니다. 잠시 후 다시 눌러주세요 🪷');
+          });
+        }
       } else {
         audio.pause();
+        btn.innerHTML = '▶ 독송 듣기';
+        btn.style.background = '';
+        btn.style.color = '';
+      }
+    }
+
+    function onSutraAudioError(e) {
+      console.warn('Audio playback error:', e);
+      const btn = document.getElementById('sutraAudioPlayBtn');
+      if (btn) {
         btn.innerHTML = '▶ 독송 듣기';
         btn.style.background = '';
         btn.style.color = '';
