@@ -1070,6 +1070,25 @@
         <button class="day-tab-btn" id="dayBtn-sun" onclick="selectSutraDay('sun')">일 (법회안내)</button>
       </div>
 
+      <!-- 금강경 독송 음원 플레이어 바 (1일차 및 음원 제공 요일) -->
+      <div id="sutraAudioPlayerBar" class="sutra-audio-card" style="display: none;">
+        <div class="audio-card-header">
+          <div class="audio-info">
+            <span class="audio-badge">🎧 추천 독경 음원</span>
+            <span class="audio-title" id="sutraAudioTitle">금강경 1일차 목탁 독송 (10분 46초)</span>
+          </div>
+          <button class="audio-play-main-btn" id="sutraAudioPlayBtn" onclick="toggleSutraAudio()">
+            ▶ 독송 듣기
+          </button>
+        </div>
+        <div class="audio-progress-wrap">
+          <span class="audio-time" id="sutraAudioCurrentTime">00:00</span>
+          <input type="range" class="audio-slider" id="sutraAudioSlider" min="0" max="100" value="0" oninput="seekSutraAudio(this.value)">
+          <span class="audio-time" id="sutraAudioDuration">10:46</span>
+        </div>
+        <audio id="sutraAudioElem" preload="metadata" src="assets/sutra_day1.mp3" ontimeupdate="onSutraAudioTimeUpdate()" onended="onSutraAudioEnded()"></audio>
+      </div>
+
       <!-- 경전 본문 뷰어 -->
       <div class="sutra-container" id="sutraScrollContainer">
         <div class="sutra-title-box">
@@ -1502,6 +1521,7 @@
     function switchTab(tabId) {
       stopAutoScroll();
       stopMoktakBeat();
+      stopSutraAudio();
 
       document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -1539,6 +1559,17 @@
 
         // 요일 탭 활성화 상태 동기화
         const dayCode = stepKey.replace('step7_', '');
+
+      const audioBar = document.getElementById('sutraAudioPlayerBar');
+      if (step === 7 && stepKey === 'step7_mon') {
+        if (audioBar) audioBar.style.display = 'block';
+      } else {
+        if (audioBar) {
+          audioBar.style.display = 'none';
+          stopSutraAudio();
+        }
+      }
+
         document.querySelectorAll('.day-tab-btn').forEach(btn => {
           btn.classList.toggle('active', btn.id === ('dayBtn-' + dayCode));
         });
@@ -1630,6 +1661,80 @@
       playMoktakSound();
     }
 
+    
+    /* ========================================================
+       금강경 독송 오디오 플레이어 제어
+       ======================================================== */
+    function toggleSutraAudio() {
+      const audio = document.getElementById('sutraAudioElem');
+      const btn = document.getElementById('sutraAudioPlayBtn');
+      if (!audio) return;
+
+      if (audio.paused) {
+        audio.play().then(() => {
+          btn.innerHTML = '⏸️ 일시정지';
+          btn.style.background = '#e07a5f';
+          btn.style.color = '#fff';
+        }).catch(err => {
+          console.warn('Audio play error:', err);
+        });
+      } else {
+        audio.pause();
+        btn.innerHTML = '▶ 독송 듣기';
+        btn.style.background = '';
+        btn.style.color = '';
+      }
+    }
+
+    function onSutraAudioTimeUpdate() {
+      const audio = document.getElementById('sutraAudioElem');
+      const slider = document.getElementById('sutraAudioSlider');
+      const curTime = document.getElementById('sutraAudioCurrentTime');
+      const durTime = document.getElementById('sutraAudioDuration');
+      if (!audio || !slider || isNaN(audio.duration)) return;
+
+      slider.value = (audio.currentTime / audio.duration) * 100;
+      curTime.innerText = formatAudioTime(audio.currentTime);
+      durTime.innerText = formatAudioTime(audio.duration);
+    }
+
+    function onSutraAudioEnded() {
+      const btn = document.getElementById('sutraAudioPlayBtn');
+      if (btn) {
+        btn.innerHTML = '▶ 독송 듣기';
+        btn.style.background = '';
+        btn.style.color = '';
+      }
+      showToast('금강경 1일차 독경 음원을 모두 들으셨습니다. 성불하십시오! 🪷');
+    }
+
+    function seekSutraAudio(val) {
+      const audio = document.getElementById('sutraAudioElem');
+      if (!audio || isNaN(audio.duration)) return;
+      audio.currentTime = (val / 100) * audio.duration;
+    }
+
+    function formatAudioTime(sec) {
+      if (isNaN(sec)) return "00:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function stopSutraAudio() {
+      const audio = document.getElementById('sutraAudioElem');
+      const btn = document.getElementById('sutraAudioPlayBtn');
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+      if (btn) {
+        btn.innerHTML = '▶ 독송 듣기';
+        btn.style.background = '';
+        btn.style.color = '';
+      }
+    }
+
     function startDailyPrayer() {
       currentStep = 1;
       switchTab('tab-prayer');
@@ -1682,6 +1787,7 @@
       const btn = document.getElementById('moktakBeatBtn');
       if (moktakBeatInterval) {
         stopMoktakBeat();
+      stopSutraAudio();
       } else {
         btn.classList.add('active');
         btn.innerHTML = '<span>⏸️</span> 목탁 멈춤';
