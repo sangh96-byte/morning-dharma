@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>나만의 아침 예불</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#181512">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/png" href="assets/icon-192.png">
+  
+  <!-- 웹폰트: 나눔명조 및 프리텐다드 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* 다크모드 (새벽 먹색 & 금빛) */
+      --bg-primary: #171513;
+      --bg-card: #23201C;
+      --bg-card-sub: #2D2924;
+      --text-primary: #F5EFEB;
+      --text-secondary: #C4B9AD;
+      --text-muted: #8E8275;
+      --gold-primary: #D4AF37;
+      --gold-light: #F3E5AB;
+      --gold-dark: #997B24;
+      --lotus-pink: #E88B9E;
+      --lotus-bg: rgba(232, 139, 158, 0.15);
+      --border-color: rgba(212, 175, 55, 0.2);
+      --nav-bg: rgba(23, 21, 19, 0.95);
+      --highlight: rgba(212, 175, 55, 0.25);
+      --font-scale: 1.15; /* 보살님 전용 기본 큰 글씨 */
+    }
+
+    /* 한지 베이지 라이트 테마 */
+    body.theme-hanji {
+      --bg-primary: #F7F3E9;
+      --bg-card: #FFFFFF;
+      --bg-card-sub: #EDE6D6;
+      --text-primary: #2B2621;
+      --text-secondary: #5C5247;
+      --text-muted: #8F8273;
+      --gold-primary: #9B7512;
+      --gold-light: #CBA43B;
+      --gold-dark: #6D5108;
+      --lotus-pink: #D05370;
+      --lotus-bg: rgba(208, 83, 112, 0.12);
+      --border-color: rgba(155, 117, 18, 0.2);
+      --nav-bg: rgba(247, 243, 233, 0.95);
+      --highlight: rgba(203, 164, 59, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Nanum Myeongjo', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      touch-action: manipulation;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* 상단 고정 헤더 */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-icon {
+      font-size: 24px;
+      animation: floatLotus 4s ease-in-out infinite;
+    }
+
+    @keyframes floatLotus {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .brand-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--gold-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-icon-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      transition: all 0.2s;
+    }
+
+    .btn-icon-circle:active {
+      transform: scale(0.92);
+      border-color: var(--gold-primary);
+    }
+
+    /* 글자 크기 조절 배너 (항상 손쉽게 조작) */
+    .font-bar {
+      background: var(--bg-card-sub);
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .font-bar-title {
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .font-size-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .font-btn {
+      padding: 4px 10px;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .font-btn.active {
+      background: var(--gold-primary);
+      color: #171513;
+      border-color: var(--gold-primary);
+      font-weight: 700;
+    }
+
+    /* 본문 영역 */
+    .main-content {
+      flex: 1;
+      padding: 16px;
+      padding-bottom: 96px; /* 하단 탭 공간 */
+      max-width: 640px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 카드 스타일 */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+    }
+
+    /* 홈 탭 메인 비주얼 */
+    .home-hero {
+      text-align: center;
+      padding: 24px 16px;
+      background: radial-gradient(circle at top, rgba(212, 175, 55, 0.15), transparent 70%), var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 16px;
+    }
+
+    .today-date-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      font-size: 14px;
+      color: var(--gold-primary);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--lotus-bg);
+      border: 1px solid var(--lotus-pink);
+      color: var(--lotus-pink);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .quote-box {
+      margin: 14px 0 20px;
+      padding: 14px;
+      border-left: 3px solid var(--gold-primary);
+      background: rgba(0,0,0,0.1);
+      border-radius: 0 10px 10px 0;
+      text-align: left;
+    }
+
+    .quote-text {
+      font-size: calc(16px * var(--font-scale) * 0.95);
+      line-height: 1.6;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .quote-from {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      text-align: right;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* 왕 큰 메인 시작 버튼 (보살님 취향 저격) */
+    .btn-main-prayer {
+      width: 100%;
+      padding: 20px 24px;
+      border-radius: 22px;
+      border: none;
+      background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+      color: #171513;
+      font-size: calc(20px * var(--font-scale));
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(184, 134, 11, 0.35);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Nanum Myeongjo', serif;
+    }
+
+    .btn-main-prayer:active {
+      transform: scale(0.97);
+      box-shadow: 0 4px 12px rgba(184, 134, 11, 0.2);
+    }
+
+    /* 요일별 금강경 안내 카드 */
+    .today-guide-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .today-guide-info h4 {
+      font-size: 15px;
+      color: var(--text-muted);
+      font-family: 'Noto Sans KR', sans-serif;
+      margin-bottom: 4px;
+    }
+
+    .today-guide-info p {
+      font-size: calc(17px * var(--font-scale));
+      font-weight: 700;
+      color: var(--gold-primary);
+    }
+
+    /* 빠른 실행 그리드 */
+    .quick-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .quick-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-btn:active {
+      background: var(--bg-card-sub);
+      border-color: var(--gold-primary);
+      transform: translateY(2px);
+    }
+
+    .quick-btn-icon {
+      font-size: 28px;
+    }
+
+    .quick-btn-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .quick-btn-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* ===== [예불/경전 탭] ===== */
+    .prayer-step-header {
+      background: var(--bg-card-sub);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--border-color);
+    }
+
+    .step-pill {
+      background: var(--gold-primary);
+      color: #171513;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .step-progress-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .p-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      opacity: 0.4;
+    }
+
+    .p-dot.active {
+      background: var(--gold-primary);
+      opacity: 1;
+      transform: scale(1.3);
+    }
+
+    /* 경전 텍스트 뷰어 (글씨 크기, 가독성 극대화) */
+    .sutra-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 24px 20px;
+      min-height: 400px;
+      line-height: 2.1;
+      font-size: calc(18px * var(--font-scale));
+      color: var(--text-primary);
+      white-space: pre-line;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    .sutra-title-box {
+      text-align: center;
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .sutra-main-title {
+      font-size: calc(22px * var(--font-scale));
+      font-weight: 800;
+      color: var(--gold-primary);
+      margin-bottom: 6px;
+    }
+
+    .sutra-sub-title {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .sutra-text-body {
+      letter-spacing: 0.5px;
+      word-break: keep-all;
+    }
+
+    /* 강조 구절 / 절하는 부분 */
+    .bow-point {
+      display: inline-block;
+      color: var(--lotus-pink);
+      font-weight: 800;
+      padding: 0 4px;
+    }
+
+    /* 예불 하단 컨트롤 바 */
+    .prayer-control-bar {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step-nav-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-step {
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .btn-step.primary {
+      background: linear-gradient(135deg, #D4AF37, #B8860B);
+      color: #171513;
+      border: none;
+      box-shadow: 0 4px 14px rgba(184, 134, 11, 0.3);
+    }
+
+    .sutra-aux-btns {
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
+    .aux-btn {
+      flex: 1;
+      padding: 12px;
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .aux-btn.active {
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+      font-weight: 700;
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    /* ===== [108배 & 정근 계수기 탭] ===== */
+    .bow-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .bow-touch-surface {
+      width: 100%;
+      height: 380px;
+      background: radial-gradient(circle, var(--bg-card-sub) 0%, var(--bg-card) 100%);
+      border: 2px dashed var(--border-color);
+      border-radius: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+
+    .bow-touch-surface:active {
+      transform: scale(0.98);
+      border-color: var(--gold-primary);
+      background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, var(--bg-card) 100%);
+    }
+
+    .bow-count-huge {
+      font-size: 96px;
+      font-weight: 800;
+      color: var(--gold-primary);
+      line-height: 1;
+      margin: 10px 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      text-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .bow-target-text {
+      font-size: 18px;
+      color: var(--text-muted);
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .bow-hint-pulse {
+      font-size: 16px;
+      color: var(--lotus-pink);
+      margin-top: 14px;
+      font-weight: 700;
+      animation: pulseText 2s infinite;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    .bow-controls {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      margin-top: 18px;
+    }
+
+    .bow-mode-toggle {
+      display: flex;
+      width: 100%;
+      background: var(--bg-card-sub);
+      border-radius: 14px;
+      padding: 4px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border-color);
+    }
+
+    .bow-mode-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .bow-mode-btn.active {
+      background: var(--bg-card);
+      color: var(--gold-primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    /* ===== [참선 타이머 탭] ===== */
+    .zen-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .zen-circle-wrap {
+      width: 260px;
+      height: 260px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .zen-svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .zen-circle-bg {
+      fill: none;
+      stroke: var(--bg-card-sub);
+      stroke-width: 10;
+    }
+
+    .zen-circle-progress {
+      fill: none;
+      stroke: var(--gold-primary);
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 754;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .zen-time-display {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .zen-time-digits {
+      font-size: 48px;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: var(--text-primary);
+    }
+
+    .zen-time-label {
+      font-size: 14px;
+      color: var(--gold-primary);
+      font-family: 'Noto Sans KR', sans-serif;
+      margin-top: 4px;
+    }
+
+    .zen-presets {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .zen-preset-btn {
+      padding: 10px 18px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .zen-preset-btn.active {
+      background: var(--gold-primary);
+      color: #171513;
+      border-color: var(--gold-primary);
+    }
+
+    /* ===== [수행 일지 (달력) 탭] ===== */
+    .calendar-card {
+      padding: 20px 16px;
+    }
+
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .cal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .cal-weekdays div:first-child { color: #E57373; } /* 일요일 */
+    .cal-weekdays div:last-child { color: #64B5F6; } /* 토요일 */
+
+    .cal-days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .cal-day-cell {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      background: var(--bg-card-sub);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-family: 'Noto Sans KR', sans-serif;
+      position: relative;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .cal-day-cell.today {
+      border-color: var(--gold-primary);
+      font-weight: 800;
+    }
+
+    .cal-day-cell.completed {
+      background: var(--lotus-bg);
+      border-color: var(--lotus-pink);
+    }
+
+    .cal-day-stamp {
+      font-size: 18px;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    .cal-empty {
+      background: transparent;
+      cursor: default;
+    }
+
+    /* 하단 고정 네비게이션 바 (보살님 전용 큰 탭) */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 10px 14px;
+      z-index: 50;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 14px;
+      transition: all 0.2s;
+      flex: 1;
+    }
+
+    .nav-item.active {
+      color: var(--gold-primary);
+      background: rgba(212, 175, 55, 0.12);
+    }
+
+    .nav-icon {
+      font-size: 22px;
+    }
+
+    .nav-label {
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* 모달 공통 */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 24px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--gold-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-textarea {
+      width: 100%;
+      height: 280px;
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-primary);
+      font-family: 'Nanum Myeongjo', serif;
+      font-size: 16px;
+      line-height: 1.8;
+      padding: 14px;
+      resize: vertical;
+      margin-bottom: 16px;
+    }
+
+    /* 토스트 알림 */
+    .toast {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(35, 32, 28, 0.95);
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-light);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      z-index: 200;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 헤더 -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-icon">🪷</span>
+      <span class="brand-title">나만의 아침 예불</span>
+    </div>
+    <div class="header-actions">
+      <!-- 배경 테마 변경 (먹색 / 한지) -->
+      <button class="btn-icon-circle" id="themeToggleBtn" title="배경색 바꾸기" onclick="toggleTheme()">
+        🌙
+      </button>
+      <!-- 목탁/종소리 음소거 여부 -->
+      <button class="btn-icon-circle" id="soundToggleBtn" title="소리 켜기/끄기" onclick="toggleSound()">
+        🔔
+      </button>
+      <!-- 갤럭시 홈화면 설치 안내 -->
+      <button class="btn-icon-circle" title="갤럭시 폰 설치 안내" onclick="openInstallGuide()">
+        📱
+      </button>
+    </div>
+  </header>
+
+  <!-- 글씨 크기 조절 배너 (눈 침침한 보살님을 위한 원클릭 확대) -->
+  <div class="font-bar">
+    <div class="font-bar-title">
+      <span>🔍 글씨 크기</span>
+    </div>
+    <div class="font-size-btns">
+      <button class="font-btn" onclick="setFontScale(1.0, this)">보통</button>
+      <button class="font-btn active" onclick="setFontScale(1.18, this)">크게</button>
+      <button class="font-btn" onclick="setFontScale(1.35, this)">아주크게</button>
+      <button class="font-btn" onclick="setFontScale(1.55, this)">최대</button>
+    </div>
+  </div>
+
+  <!-- 메인 본문 컨테이너 -->
+  <main class="main-content">
+
+    <!-- [1. 홈 탭] -->
+    <section id="tab-home" class="tab-pane active">
+      <div class="home-hero">
+        <div class="today-date-badge" id="homeTodayDate">2026년 10월 23일 금요일</div>
+        <br>
+        <div class="streak-badge">
+          🪷 연속 정진 <span id="streakCount">1</span>일째
+        </div>
+
+        <div class="quote-box">
+          <p class="quote-text" id="dailyQuote">
+            "마음은 모든 일의 근본이 되나니, 맑고 깨끗한 마음으로 정진하면 행복이 그림자처럼 따르리라."
+          </p>
+          <p class="quote-from">- 법구경 쌍서품 -</p>
+        </div>
+
+        <button class="btn-main-prayer" onclick="startDailyPrayer()">
+          <span>🪷</span>
+          <span>오늘 아침 예불 시작하기</span>
+        </button>
+      </div>
+
+      <!-- 요일별 금강경 독송 맞춤 안내 카드 -->
+      <div class="today-guide-card">
+        <div class="today-guide-info">
+          <h4 id="sutraDayLabel">오늘의 금강경 독송 분량</h4>
+          <p id="sutraDayTitle">한문 금강경 (제1분 ~ 제16분)</p>
+        </div>
+        <span style="font-size: 32px;">📜</span>
+      </div>
+
+      <!-- 빠른 실행 그리드 -->
+      <div class="quick-grid">
+        <div class="quick-btn" onclick="switchTab('tab-prayer')">
+          <span class="quick-btn-icon">📖</span>
+          <span class="quick-btn-title">예불 & 경전</span>
+          <span class="quick-btn-sub">7단계 순서 독송</span>
+        </div>
+        <div class="quick-btn" onclick="switchTab('tab-bow')">
+          <span class="quick-btn-icon">🙏</span>
+          <span class="quick-btn-title">108배 계수기</span>
+          <span class="quick-btn-sub">터치 & 맑은 목탁</span>
+        </div>
+        <div class="quick-btn" onclick="switchTab('tab-zen')">
+          <span class="quick-btn-icon">🧘</span>
+          <span class="quick-btn-title">참선 타이머</span>
+          <span class="quick-btn-sub">은은한 범종 타종</span>
+        </div>
+        <div class="quick-btn" onclick="switchTab('tab-diary')">
+          <span class="quick-btn-icon">📅</span>
+          <span class="quick-btn-title">수행 일지</span>
+          <span class="quick-btn-sub">연꽃 도장 달력</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- [2. 예불 & 경전 탭] -->
+    <section id="tab-prayer" class="tab-pane">
+      <!-- 단계 인디케이터 -->
+      <div class="prayer-step-header">
+        <span class="step-pill" id="stepBadge">1 / 7 단계</span>
+        <span class="step-title" id="stepTitleText">조석예불문 (칠정례)</span>
+        <div class="step-progress-dots" id="stepDots">
+          <div class="p-dot active"></div>
+          <div class="p-dot"></div>
+          <div class="p-dot"></div>
+          <div class="p-dot"></div>
+          <div class="p-dot"></div>
+          <div class="p-dot"></div>
+          <div class="p-dot"></div>
+        </div>
+      </div>
+
+      <!-- 보조 조작 버튼들 (목탁 반주, 자동 스크롤, 본문 수정) -->
+      <div class="sutra-aux-btns" style="margin-bottom: 12px;">
+        <button class="aux-btn" id="autoScrollBtn" onclick="toggleAutoScroll()">
+          <span>📜</span> 자동 내림
+        </button>
+        <button class="aux-btn" id="moktakBeatBtn" onclick="toggleMoktakBeat()">
+          <span>🪵</span> 목탁 반주
+        </button>
+        <button class="aux-btn" onclick="openTextEditorModal()">
+          <span>✏️</span> 원문 수정
+        </button>
+      </div>
+
+      <!-- 경전 본문 뷰어 -->
+      <div class="sutra-container" id="sutraScrollContainer">
+        <div class="sutra-title-box">
+          <h2 class="sutra-main-title" id="sutraDisplayTitle">조석예불문</h2>
+          <p class="sutra-sub-title" id="sutraDisplaySub">지극한 마음으로 삼보전에 예경하옵니다</p>
+        </div>
+        <div class="sutra-text-body" id="sutraDisplayText">
+          <!-- 스크립트로 채워짐 -->
+        </div>
+      </div>
+
+      <!-- 이전 / 다음 단계 이동 -->
+      <div class="prayer-control-bar">
+        <div class="step-nav-btns">
+          <button class="btn-step" onclick="prevPrayerStep()">
+            ◀ 이전 단계
+          </button>
+          <button class="btn-step primary" id="nextStepBtn" onclick="nextPrayerStep()">
+            다음 단계 ▶
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- [3. 108배 & 정근 계수기 탭] -->
+    <section id="tab-bow" class="tab-pane">
+      <div class="bow-container">
+        
+        <!-- 모드 선택 (108배 vs 석가모니불 정근) -->
+        <div class="bow-mode-toggle">
+          <button class="bow-mode-btn active" id="btnMode108" onclick="setBowMode('108')">
+            🙏 108배 정진
+          </button>
+          <button class="bow-mode-btn" id="btnModeJeonggeun" onclick="setBowMode('jeonggeun')">
+            📿 석가모니불 정근
+          </button>
+        </div>
+
+        <!-- 초대형 터치 화면 (아무데나 툭 쳐도 1배씩 증가) -->
+        <div class="bow-touch-surface" id="bowSurface" onclick="handleBowTouch()">
+          <span class="bow-target-text" id="bowModeLabel">108배 절 정진</span>
+          <div class="bow-count-huge" id="bowCountDisplay">0</div>
+          <span class="bow-target-text" id="bowTargetText">/ 목표 108배</span>
+          <div class="bow-hint-pulse" id="bowHintText">화면을 툭 터치하면 1배 올라갑니다</div>
+        </div>
+
+        <div class="bow-controls">
+          <button class="btn-step" style="flex: 1;" onclick="resetBowCount()">
+            🔄 처음부터 다시
+          </button>
+          <button class="btn-step primary" style="flex: 1.3;" onclick="completeBowSession()">
+            🪷 회향 및 도장 찍기
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- [4. 참선 타이머 탭] -->
+    <section id="tab-zen" class="tab-pane">
+      <div class="zen-container">
+        <h3 style="color: var(--gold-primary); font-size: 20px; margin-bottom: 6px;">참선(명상) 입정</h3>
+        <p style="color: var(--text-muted); font-size: 14px; font-family: 'Noto Sans KR', sans-serif;">
+          호흡을 고르고 마음의 고요를 찾으소서
+        </p>
+
+        <!-- 원형 프로그레스 타이머 -->
+        <div class="zen-circle-wrap">
+          <svg class="zen-svg" viewBox="0 0 260 260">
+            <circle class="zen-circle-bg" cx="130" cy="130" r="120"></circle>
+            <circle class="zen-circle-progress" id="zenProgressCircle" cx="130" cy="130" r="120"></circle>
+          </svg>
+          <div class="zen-time-display">
+            <span class="zen-time-digits" id="zenTimeDisplay">10:00</span>
+            <span class="zen-time-label" id="zenStatusLabel">준비</span>
+          </div>
+        </div>
+
+        <!-- 시간 프리셋 버튼 -->
+        <div class="zen-presets">
+          <button class="zen-preset-btn" onclick="setZenDuration(300, this)">5분</button>
+          <button class="zen-preset-btn active" onclick="setZenDuration(600, this)">10분</button>
+          <button class="zen-preset-btn" onclick="setZenDuration(900, this)">15분</button>
+          <button class="zen-preset-btn" onclick="setZenDuration(1800, this)">30분</button>
+        </div>
+
+        <!-- 시작 / 일시정지 버튼 -->
+        <div style="width: 100%; max-width: 320px;">
+          <button class="btn-main-prayer" id="zenStartBtn" onclick="toggleZenTimer()">
+            <span>🔔</span>
+            <span id="zenBtnText">입정(시작) 종소리</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- [5. 수행 일지 (달력) 탭] -->
+    <section id="tab-diary" class="tab-pane">
+      <div class="card calendar-card">
+        <div class="cal-header">
+          <button class="btn-icon-circle" onclick="changeMonth(-1)">◀</button>
+          <div class="cal-title" id="calMonthTitle">2026년 10월</div>
+          <button class="btn-icon-circle" onclick="changeMonth(1)">▶</button>
+        </div>
+
+        <div class="cal-weekdays">
+          <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+        </div>
+
+        <div class="cal-days-grid" id="calDaysGrid">
+          <!-- 달력 날짜 채움 -->
+        </div>
+      </div>
+
+      <!-- 오늘 한 줄 발원 / 감사 일기 -->
+      <div class="card">
+        <h4 style="color: var(--gold-primary); font-size: 16px; margin-bottom: 8px; font-family: 'Noto Sans KR', sans-serif;">
+          ✍️ 오늘의 한 줄 발원 & 감사 일기
+        </h4>
+        <textarea id="todayDiaryInput" class="modal-textarea" style="height: 90px; font-size: 15px;" placeholder="오늘 하루도 감사한 마음과 자비로운 원력으로 시작합니다."></textarea>
+        <button class="btn-step primary" style="width: 100%;" onclick="saveTodayDiary()">
+          🪷 오늘의 발원문 저장하기
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 하단 고정 탭 메뉴바 (5개 탭) -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="switchTab('tab-home')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">홈</span>
+    </button>
+    <button class="nav-item" id="nav-prayer" onclick="switchTab('tab-prayer')">
+      <span class="nav-icon">📖</span>
+      <span class="nav-label">예불·경전</span>
+    </button>
+    <button class="nav-item" id="nav-bow" onclick="switchTab('tab-bow')">
+      <span class="nav-icon">🙏</span>
+      <span class="nav-label">108배</span>
+    </button>
+    <button class="nav-item" id="nav-zen" onclick="switchTab('tab-zen')">
+      <span class="nav-icon">🧘</span>
+      <span class="nav-label">참선</span>
+    </button>
+    <button class="nav-item" id="nav-diary" onclick="switchTab('tab-diary')">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">수행일지</span>
+    </button>
+  </nav>
+
+  <!-- [모달 1] 경전 텍스트 편집기 (보살님이 사진 보고 오타/문구를 자유롭게 수정 가능) -->
+  <div class="modal-overlay" id="textEditModal">
+    <div class="modal-box">
+      <div class="modal-title">
+        <span>✏️</span>
+        <span id="modalEditStepTitle">경전 본문 수정</span>
+      </div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px; font-family: 'Noto Sans KR', sans-serif;">
+        보살님께서 가지고 계신 경전 책자나 사진의 구절대로 글자를 편하게 수정해 넣으실 수 있습니다.
+      </p>
+      <textarea id="modalEditTextarea" class="modal-textarea"></textarea>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-step" style="flex: 1;" onclick="closeTextEditorModal()">취소</button>
+        <button class="btn-step primary" style="flex: 1;" onclick="saveEditedSutraText()">저장하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- [모달 2] 갤럭시 폰 홈화면 설치 안내 모달 -->
+  <div class="modal-overlay" id="installGuideModal">
+    <div class="modal-box">
+      <div class="modal-title">
+        <span>📱</span>
+        <span>갤럭시폰 바탕화면에 설치하기</span>
+      </div>
+      <div style="font-family: 'Noto Sans KR', sans-serif; font-size: 15px; line-height: 1.7; color: var(--text-primary); margin-bottom: 18px;">
+        <p style="margin-bottom: 12px;">
+          삼성 갤럭시 폰(삼성 인터넷 또는 크롬)에서는 앱스토어 방문 없이 <strong>10초 만에 일반 앱처럼 설치</strong>할 수 있습니다!
+        </p>
+        <div style="background: var(--bg-card-sub); padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px;">
+          <strong>삼성 인터넷 브라우저:</strong><br>
+          1. 우측 하단 <strong>[ ≡ ] 메뉴</strong> 터치<br>
+          2. <strong>[ + 현재 페이지 추가 ]</strong> 터치<br>
+          3. <strong>[ 홈 화면 ]</strong> 선택
+        </div>
+        <div style="background: var(--bg-card-sub); padding: 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+          <strong>구글 크롬 브라우저:</strong><br>
+          1. 우측 상단 <strong>[ ⋮ ] 점 세 개</strong> 터치<br>
+          2. <strong>[ 홈 화면에 추가 ]</strong> 또는 <strong>[ 앱 설치 ]</strong> 터치
+        </div>
+      </div>
+      <button class="btn-step primary" style="width: 100%;" onclick="closeInstallGuide()">확인</button>
+    </div>
+  </div>
+
+  <!-- 토스트 메시지 -->
+  <div class="toast" id="toastMsg">연꽃 도장이 찍혔습니다 🪷</div>
+
+  <!-- 사운드 엔진 및 애플리케이션 스크립트 -->
+  <script>
+    /* ========================================================
+       1. WEB AUDIO API 사운드 엔진 (목탁, 범종, 죽비 자체 합성)
+       외부 mp3 파일이 없어도 맑고 그윽한 한국 전통 사운드 재생
+       ======================================================== */
+    let audioCtx = null;
+    let isSoundMuted = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // 맑은 목탁 소리 (Woodblock) 합성
+    function playMoktakSound(freq = 620, volume = 0.8) {
+      if (isSoundMuted) return;
+      try {
+        initAudio();
+        const now = audioCtx.currentTime;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.7, now + 0.08);
+
+        // 빠른 타격과 부드러운 감쇠
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(volume, now + 0.003);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+
+        // 바디 공명 필터
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = freq;
+        filter.Q.value = 4.0;
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.16);
+
+        // 폰 진동 (갤럭시 햅틱 피드백)
+        if (navigator.vibrate) {
+          navigator.vibrate(15);
+        }
+      } catch (e) {
+        console.warn('Audio error:', e);
+      }
+    }
+
+    // 은은한 사찰 범종(Temple Bell) 소리 합성 (풍부한 배음 + 4초 긴 잔향)
+    function playBellSound(vol = 1.0) {
+      if (isSoundMuted) return;
+      try {
+        initAudio();
+        const now = audioCtx.currentTime;
+        const freqs = [174.6, 261.6, 349.2, 523.2, 784.0];
+        const weights = [0.8, 0.5, 0.35, 0.2, 0.1];
+
+        freqs.forEach((f, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, now);
+
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(weights[idx] * vol, now + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 4.0);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(now);
+          osc.stop(now + 4.2);
+        });
+
+        if (navigator.vibrate) {
+          navigator.vibrate([40, 60, 40]);
+        }
+      } catch (e) {
+        console.warn('Bell audio error:', e);
+      }
+    }
+
+    function toggleSound() {
+      isSoundMuted = !isSoundMuted;
+      const btn = document.getElementById('soundToggleBtn');
+      if (isSoundMuted) {
+        btn.innerHTML = '🔇';
+        showToast('소리가 꺼졌습니다 (무음 모드)');
+      } else {
+        btn.innerHTML = '🔔';
+        showToast('맑은 목탁/종소리가 켜졌습니다');
+        playMoktakSound();
+      }
+    }
+
+    /* ========================================================
+       2. 경전 본문 데이터베이스 (요일별 금강경 및 7단계 순서)
+       ======================================================== */
+    const DEFAULT_SUTRAS = {
+      step1: {
+        title: "조석예불문 (칠정례)",
+        sub: "지극한 마음으로 삼보전에 예경하옵니다",
+        text: `계향 정향 혜향 해탈향 해탈지견향
+광명운대 주변법계 공양시방 무량삼보
+헌향진언 「옴 바아라 도비야 훔」 (3번)
+
+지심귀명례 시방삼세 제망찰해 상주시방 불타야중 (1배)
+지심귀명례 시방삼세 제망찰해 상주시방 달마야중 (1배)
+지심귀명례 시방삼세 제망찰해 상주시방 승가야중 (1배)
+
+지심귀명례 대지문수사리보살 대행보현보살 
+대비관세음보살 대원본존지장보살 마하살 (1배)
+
+지심귀명례 영산당시 수불부촉 십대제자 
+십육성 오백성 독수성 내지 천이백제대아라한 무량제대성현 (1배)
+
+지심귀명례 서건동진 급아해동 역대전등 제대조사 
+천하시중 제대선지식 무량제대선사 (1배)
+
+지심귀명례 시방삼세 제망찰해 상주시방 무량불법승 삼보자존 (1배)
+
+유원 무진삼보 대자대비 수아영공 명훈가피력
+원공법계제중생 자타일시성불도`
+      },
+      step2: {
+        title: "이산선사 발원문",
+        sub: "이산 혜연 선사의 거룩한 발원",
+        text: `시방삼세 부처님과 거룩하신 가르침과 보살스님네께 지극한 마음으로 머리 숙여 엎드려 비옵나니,
+저희들이 삼보의 은혜를 입사와 이 세상에 사람 몸을 받았으니 이제 불법을 만나 바른 믿음 내었나이다.
+
+바라옵건대 지극한 원력으로 물러남이 없이 정진하여, 
+하루바삐 큰 지혜 밝혀서 온 세상 중생들을 제도하게 하옵소서.
+
+어느 곳에 태어나든 불법을 만나고, 지혜와 자비심이 날로 늘어나며,
+보리심이 굳건하여 일체 중생을 건지오리다.
+
+나무석가모니불 나무석가모니불 나무시아본사석가모니불.`
+      },
+      step3: {
+        title: "우리말 반야심경",
+        sub: "마하반야바라밀다심경 (조계종 표준 번역)",
+        text: `관자재보살이 깊은 반야바라밀다를 행할 때, 
+다섯 가지 쌓임이 모두 공한 것을 비추어 보고 온갖 괴로움과 재앙을 건넜느니라.
+
+사리자여! 물질이 공과 다르지 않고 공이 물질과 다르지 않으며, 
+물질이 곧 공이요 공이 곧 물질이니, 느낌과 생각과 지어감과 의식도 또한 그러하니라.
+
+사리자여! 이 모든 법의 공한 모양은 나지도 않고 없어지지도 않으며, 
+더럽지도 않고 깨끗하지도 않으며, 늘지도 않고 줄지도 않느니라.
+
+그러므로 공 가운데에는 물질도 없고 느낌과 생각과 지어감과 의식도 없으며, 
+눈과 귀와 코와 혀와 몸과 뜻도 없으며, 
+빛과 소리와 냄새와 맛과 닿임과 법도 없으며, 
+눈의 경계도 없고 의식의 경계까지도 없느니라.
+
+무명도 없고 또한 무명이 다함도 없으며, 
+늙고 죽음도 없고 또한 늙고 죽음이 다함까지도 없으며, 
+괴로움과 괴로움의 원인과 괴로움의 없어짐과 괴로움을 없애는 길도 없으며, 
+지혜도 없고 얻음도 없느니라.
+
+얻을 것이 없는 까닭에 보살은 반야바라밀다에 의지하므로 
+마음에 걸림이 없고, 걸림이 없으므로 두려움이 없어서 
+뒤바뀐 헛된 생각을 아주 떠나 완전한 열반에 들어가며, 
+삼세의 모든 부처님도 반야바라밀다에 의지하므로 
+위없는 바르고 평등한 깨달음을 얻느니라.
+
+그러므로 알라. 반야바라밀다는 가장 신비한 주문이며, 
+가장 밝은 주문이며, 위없는 주문이며, 무엇과도 견줄 수 없는 주문이니, 
+온갖 괴로움을 없애고 진실하여 허망하지 않느니라.
+
+그러므로 반야바라밀다의 주문을 말하노니 주문은 곧 이러하니라.
+
+「아제아제 바라아제 바라승아제 모지 사바하」 (3번)`
+      },
+      step4: {
+        title: "경전독송 의식",
+        sub: "개경게 & 개법장진언",
+        text: `【개경게 (경전을 펴는 게송)】
+위없이 높고 깊은 미묘한 법이여,
+백천만겁 지나도록 만나뵙기 어려워라.
+제가 이제 보고 듣고 지니옵나니,
+원컨대 부처님의 참된 뜻을 깨달아 알아지이다.
+
+【개법장진언 (법장의 문을 여는 진언)】
+「옴 아라남 아라다」 (3번)`
+      },
+      step5_mon: {
+        title: "한글 금강경 (월요일: 제1분~제8분)",
+        sub: "법회인유분 ~ 의법출생분",
+        text: `【제1분 법회가 열린 까닭 (法會因由分)】
+이와 같이 나는 들었다. 
+어느 때 부처님께서는 사위국 기수급고독원에서 대비구 천이백오십 인과 함께 계시었다. 
+그때 세존께서는 공양 때가 되어 가사를 입으시고 발우를 받으사 사위대성에 들어가 밥을 비시되, 성 안에서 차례대로 밥을 비신 뒤에 본래의 처소로 돌아오시어 공양을 마치시고 가사와 발우를 거두시며 발을 씻으신 다음 자리를 펴고 앉으셨다.
+
+【제2분 선현이 법을 청하다 (善現起請分)】
+그때 장로 수보리가 대중 가운데 있다가 곧 자리에서 일어나 오른 어깨를 드러내고 오른 무릎을 땅에 꿇으며 합장하고 공경히 부처님께 여쭈었다. 
+"희유하십니다, 세존이시여! 여래께서는 모든 보살들을 잘 염려해 주시고 모든 보살들에게 잘 부촉하십니다. 세존이시여, 선남자 선여인이 가장 높고 바른 깨달음(아뇩다라삼먁삼보리)의 마음을 낸 이는 마땅히 어떻게 머물러야 하며 어떻게 그 마음을 항복받아야 합니까?"
+부처님께서 말씀하셨다. "착하고 착하다, 수보리여! 그대의 말과 같이 여래는 모든 보살들을 잘 염려해 주고 잘 부촉하느니라. 그대는 이제 자세히 들으라. 마땅히 그대를 위하여 설하리라."
+
+【제3분 대승의 바른 종지 (大乘正宗分)】
+부처님께서 수보리에게 말씀하셨다. "모든 보살마하살은 마땅히 이와 같이 그 마음을 항복받아야 하느니라. '존재하는 모든 중생의 무리들, 알로 태어난 것이나 태로 태어난 것이나 습기로 태어난 것이나 화생한 것이나, 형상이 있는 것이나 형상이 없는 것이나, 생각이 있는 것이나 생각이 없는 것이나 생각이 있는 것도 아니고 없는 것도 아닌 것들을 내가 다 완전한 열반에 들게 하여 제도하리라.' 이와 같이 한량없는 중생을 제도하지만, 실제로는 한 중생도 제도를 얻은 자가 없느니라. 무슨 까닭인가? 수보리여, 만일 보살이 아상·인상·중생상·수자상이 있으면 곧 보살이 아니기 때문이니라."
+
+【제4분 머묾 없는 묘한 행 (妙行無住分)】
+"또한 수보리여, 보살은 법에 머무는 바 없이 보시를 행해야 하나니, 이른바 형상(색)에 머물지 않고 보시하며 소리·냄새·맛·닿임·법에도 머물지 않고 보시해야 하느니라. 보살이 상에 머물지 않고 보시하면 그 복덕은 생각으로 헤아릴 수 없느니라."`
+      },
+      step5_tue: {
+        title: "한글 금강경 (화요일: 제9분~제16분)",
+        sub: "일상무상분 ~ 능정업장분",
+        text: `【제9분 한 모양도 모양 아님 (一相無相分)】
+"수보리여, 그대의 생각은 어떠하냐? 수다원이 생각하기를 '내가 수다원의 과를 얻었노라' 하겠느냐?"
+수보리가 말씀드렸다. "아닙니다, 세존이시여. 무슨 까닭인가 하면 수다원은 이름이 '성인의 흐름에 든 자'이지만 들어간 바가 없으니, 형상이나 소리나 냄새나 맛이나 닿임이나 법에 들지 않으므로 이름이 수다원이옵니다."
+"아라한이 생각하기를 '내가 아라한의 도를 얻었노라' 하겠느냐?"
+"아닙니다, 세존이시여. 만일 아라한이 생각하기를 '내가 아라한도를 얻었노라' 한다면 곧 아상·인상·중생상·수자상에 집착하는 것이옵니다."
+
+【제10분 부처님 나라를 장엄함 (莊嚴淨土分)】
+부처님께서 수보리에게 이르셨다. 
+"그러므로 수보리여, 모든 보살마하살은 마땅히 이와 같이 깨끗한 마음을 낼지니, 형상에 머물러 마음을 내지 말며, 소리·냄새·맛·닿임·법에 머물러 마음을 내지 말 것이요, 마땅히 머무는 바 없이 그 마음을 낼지니라(應無所住 而生其心)."
+
+【제14분 상을 떠나 적멸에 듦 (離相寂滅分)】
+수보리가 부처님의 설법을 듣고 깊이 뜻을 깨달아 눈물을 흘리며 슬피 울면서 부처님께 사뢰었다. 
+"희유하십니다, 세존이시여! 부처님께서 이와 같이 깊고 깊은 경전을 설하심은 제가 옛적부터 얻은 지혜의 눈으로는 일찍이 이와 같은 법을 듣지 못하였나이다. 만일 어떤 사람이 이 경을 듣고 신심이 청정하면 곧 실다운 모양을 낼 것이니 마땅히 알라, 이 사람은 가장 으뜸가는 희유한 공덕을 성취함이니이다."`
+      },
+      step5_wed: {
+        title: "한글 금강경 (수요일: 제17분~제24분)",
+        sub: "구경무아분 ~ 복지무비분",
+        text: `【제17분 마침내 나가 없음 (究竟無我分)】
+"수보리여, 실로 법이 없음을 이름하여 아뇩다라삼먁삼보리라 하느니라. 그러므로 여래가 설하되 모든 법이 다 불법이라 하느니라. 수보리여, 말한 바 모든 법이란 곧 모든 법이 아니므로 이름이 모든 법이니라."
+
+【제18분 한 몸으로 일체를 봄 (一體同觀分)】
+"수보리여, 과거의 마음도 얻을 수 없고(過去心不可得), 현재의 마음도 얻을 수 없으며(現在心不可得), 미래의 마음도 얻을 수 없느니라(未來心不可得)."
+
+【제20분 형상과 모습을 여읨 (離色離相分)】
+"수보리여, 그대의 생각은 어떠하냐? 부처를 온전한 육신(구족색신)으로 볼 수 있겠느냐?"
+"아닙니다, 세존이시여. 여래를 온전한 육신으로 볼 수 없사옵니다. 무슨 까닭인가 하면 여래께서 말씀하신 구족색신은 곧 구족색신이 아니라 그 이름이 구족색신이기 때문입니다."`
+      },
+      step5_thu: {
+        title: "한글 금강경 (목요일: 제25분~제32분)",
+        sub: "화무소화분 ~ 응화비진분",
+        text: `【제26분 법신은 형상이 아님 (法身非相分)】
+그때 세존께서 게송으로 말씀하셨다.
+
+「약이색견아(若以色見我)  형상으로써 나를 보려 하거나
+ 이음성구아(以音聲求我)  음성으로써 나를 구하면
+ 시인행사도(是人行邪道)  이 사람은 삿된 길을 걷는 것이니
+ 불능견여래(不能見如來)  능히 여래를 보지 못하리라.」
+
+【제32분 응신과 화신은 참이 아님 (應化非眞分)】
+"일체의 모든 유위법은(一切有爲法)
+ 꿈과 같고 환상과 같고 물거품 같으며 그림자 같고(如夢幻泡影)
+ 이슬과 같고 또한 번개와 같으니(如露亦如電)
+ 마땅히 이와 같이 관할지니라(應作如是觀)."
+
+부처님께서 이 경을 다 설하여 마치시니, 장로 수보리와 모든 비구, 비구니, 우바새, 우바이와 온갖 세상의 하늘과 사람과 아수라들이 부처님의 말씀을 듣고 모두 크게 기뻐하여 믿고 받들어 행하였다.`
+      },
+      step5_fri: {
+        title: "한문 금강경 (금요일: 제1분~제16분)",
+        sub: "금강반야바라밀경 상권 (음독본)",
+        text: `【제1분 법회인유분 (法會因由分)】
+여시아문 일시 불 재사위국 기수급고독원 여대비구중 천이백오십인 구. 이시 세존 식시 착의지발 입사위대성 걸식 어기성중 차제걸이 환지본처 반사흘 수의발 세족이 부좌이좌.
+
+【제2분 선현기청분 (善現起請分)】
+시 장로수보리 재대중중 즉종좌기 편단우견 우슬착지 합장공경 이백불언 희유세존 여래 선호념제보살 선부촉제보살 세존 선남자선여인 발아뇩다라삼먁삼보리심 운하응주 운하항복기심. 불언 선재선재 수보리 여여소설 여래 선호념제보살 선부촉제보살 여금제청 당위여설.
+
+【제3분 대승정종분 (大乘正宗分)】
+불고 수보리 제보살마하살 응여시항복기심 소유일체중생지류 약난생 약태생 약습생 약화생 약유색 약무색 약유상 약무상 약비유상비무상 아개영입무여열반 이멸도지 여시멸도무량무수무변중생 실무중생 득멸도자 하이고 수보리 약보살 유아상 인상 중생상 수자상 즉비보살.
+
+【제10분 장엄정토분 (莊嚴淨土分)】
+시고 수보리 제보살마하살 응여시생청정심 불응주색생심 불응주성향미촉법생심 응무소주이생기심 (應無所住而生其心).`
+      },
+      step5_sat: {
+        title: "한문 금강경 (토요일: 제17분~제32분)",
+        sub: "금강반야바라밀경 하권 (음독본)",
+        text: `【제18분 일체동관분 (一體同觀分)】
+수보리 과거심불가득 현재심불가득 미래심불가득 (過去心不可得 現在心不可得 未來心不可得).
+
+【제26분 법신비상분 (法身非相分)】
+이시 세존 이설게언
+약이색견아 이음성구아 (若以色見我 以音聲求我)
+시인행사도 불능견여래 (是人行邪道 不能見如來).
+
+【제29분 위의적정분 (威儀寂靜分)】
+수보리 약유인 언여래 약래약거 약좌약와 시인 불해아소설의 하이고 여래자 무소종래 역무소거 고명여래.
+
+【제32분 응화비진분 (應化非眞分)】
+일체유위법 여몽환포영 (一切有爲法 如夢幻泡影)
+여로역여전 응작여시관 (如露亦如電 應作如是觀).
+
+불설시경이 장로수보리 급제비구 비구니 우바새 우바이 일체세간 천인 아수라 문불소설 개대환희 신수봉행.`
+      },
+      step5_sun: {
+        title: "일요일: 사찰 법회 참석의 날 🪷",
+        sub: "도량에서 대중과 함께 청정히 법회를 봉행합니다",
+        text: `오늘은 청정한 법당에서 사찰 일요 법회에 동참하시는 날입니다. 
+
+도량에 가시어 대중 스님과 도반들과 함께 부처님의 거룩한 가르침을 듣고 찬탄하십시오. 
+
+[개인 정진 안내]
+만일 오늘 사찰에 가지 못하시거나 가정에서 추가로 정진하시기를 원하시면, 아래 다음 단계를 눌러 [석가모니불 정근]과 [금강경 발원문]으로 이어가실 수 있습니다.
+
+나무 마하반야바라밀.`
+      },
+      step6: {
+        title: "석가모니불 정근 (정진)",
+        sub: "목탁 소리에 맞추어 지극한 마음으로 염불합니다",
+        text: `나무 영산교주 시아본사 석가모니불
+나무 석가모니불 나무 석가모니불 나무 석가모니불...
+
+천상천하무여불 (天上天下無如佛)
+시방세계역무비 (十方世界亦無比)
+세간소유아진견 (世間所有我盡見)
+일체무유여불자 (一切無有如佛者)
+
+고아일심 귀명정례.`
+      },
+      step7: {
+        title: "금강경 발원문",
+        sub: "금강경 독송을 원만히 회향하며 올리는 발원",
+        text: `지극한 마음으로 부처님 전에 발원하옵나니, 
+저희들이 수지독송한 금강반야바라밀경의 거룩한 공덕으로 
+
+삼계의 모든 고통받는 중생들이 고통에서 벗어나 안락을 얻고, 
+저희의 무명 업장이 봄눈 녹듯 녹아 없어지며, 
+지혜의 눈이 활짝 열려 보살도를 행하게 하옵소서.
+
+가는 곳마다 부처님의 자비광명이 가득하고 
+가정에는 평화와 건강이 늘 함께하옵기를 지극한 마음으로 발원하옵니다.
+
+나무석가모니불 나무석가모니불 나무시아본사석가모니불.`
+      }
+    };
+
+    // 로컬 저장소에서 수정된 텍스트 불러오기 (사용자가 고친 글자 유지)
+    function getSutraData(key) {
+      const saved = localStorage.getItem('sutra_' + key);
+      if (saved) {
+        try { return JSON.parse(saved); } catch(e){}
+      }
+      return DEFAULT_SUTRAS[key];
+    }
+
+    /* ========================================================
+       3. 상태 관리 및 탭 전환
+       ======================================================== */
+    let currentStep = 1;
+    let bowCount = 0;
+    let bowMode = '108'; // '108' or 'jeonggeun'
+    let autoScrollInterval = null;
+    let moktakBeatInterval = null;
+
+    // 요일에 맞는 금강경 스텝 키 반환
+    function getTodaySutraKey() {
+      const day = new Date().getDay(); // 0: 일, 1: 월, 2: 화, 3: 수, 4: 목, 5: 금, 6: 토
+      switch(day) {
+        case 1: return 'step5_mon';
+        case 2: return 'step5_tue';
+        case 3: return 'step5_wed';
+        case 4: return 'step5_thu';
+        case 5: return 'step5_fri';
+        case 6: return 'step5_sat';
+        default: return 'step5_sun';
+      }
+    }
+
+    function switchTab(tabId) {
+      // 자동 스크롤/목탁 반주 정리
+      stopAutoScroll();
+      stopMoktakBeat();
+
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+      const targetPane = document.getElementById(tabId);
+      if (targetPane) targetPane.classList.add('active');
+
+      const navBtn = document.getElementById('nav-' + tabId.replace('tab-', ''));
+      if (navBtn) navBtn.classList.add('active');
+
+      if (tabId === 'tab-prayer') {
+        renderPrayerStep(currentStep);
+      } else if (tabId === 'tab-diary') {
+        renderCalendar();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ========================================================
+       4. 예불 7단계 진행 로직
+       ======================================================== */
+    function renderPrayerStep(step) {
+      currentStep = step;
+      let stepKey = 'step' + step;
+      if (step === 5) {
+        stepKey = getTodaySutraKey();
+      }
+
+      const data = getSutraData(stepKey);
+      document.getElementById('stepBadge').innerText = `${step} / 7 단계`;
+      document.getElementById('stepTitleText').innerText = data.title;
+      document.getElementById('sutraDisplayTitle').innerText = data.title;
+      document.getElementById('sutraDisplaySub').innerText = data.sub;
+      document.getElementById('sutraDisplayText').innerText = data.text;
+
+      // 점 인디케이터 업데이트
+      const dots = document.querySelectorAll('#stepDots .p-dot');
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === (step - 1));
+      });
+
+      // 마지막 단계일 때 버튼 문구
+      const nextBtn = document.getElementById('nextStepBtn');
+      if (step === 7) {
+        nextBtn.innerHTML = '🪷 예불 회향하기';
+      } else {
+        nextBtn.innerHTML = '다음 단계 ▶';
+      }
+
+      // 스크롤 상단 리셋
+      const container = document.getElementById('sutraScrollContainer');
+      container.scrollTop = 0;
+    }
+
+    function nextPrayerStep() {
+      playMoktakSound();
+      if (currentStep < 7) {
+        currentStep++;
+        renderPrayerStep(currentStep);
+      } else {
+        // 7단계 완료 회향!
+        completePrayer();
+      }
+    }
+
+    function prevPrayerStep() {
+      playMoktakSound();
+      if (currentStep > 1) {
+        currentStep--;
+        renderPrayerStep(currentStep);
+      }
+    }
+
+    function startDailyPrayer() {
+      currentStep = 1;
+      switchTab('tab-prayer');
+      playBellSound();
+      showToast('경건한 마음으로 아침 예불을 시작합니다 🪷');
+    }
+
+    function completePrayer() {
+      playBellSound();
+      recordTodayCompletion('prayer');
+      showToast('오늘의 아침 예불을 원만히 마쳤습니다. 성불하십시오! 🪷');
+      setTimeout(() => {
+        switchTab('tab-diary');
+      }, 1200);
+    }
+
+    /* ========================================================
+       5. 자동 스크롤 & 목탁 박자 반주
+       ======================================================== */
+    function toggleAutoScroll() {
+      const btn = document.getElementById('autoScrollBtn');
+      if (autoScrollInterval) {
+        stopAutoScroll();
+      } else {
+        btn.classList.add('active');
+        btn.innerHTML = '<span>⏸️</span> 멈춤';
+        const container = document.getElementById('sutraScrollContainer');
+        autoScrollInterval = setInterval(() => {
+          container.scrollTop += 1;
+          if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
+            stopAutoScroll();
+          }
+        }, 60);
+      }
+    }
+
+    function stopAutoScroll() {
+      if (autoScrollInterval) {
+        clearInterval(autoScrollInterval);
+        autoScrollInterval = null;
+      }
+      const btn = document.getElementById('autoScrollBtn');
+      if (btn) {
+        btn.classList.remove('active');
+        btn.innerHTML = '<span>📜</span> 자동 내림';
+      }
+    }
+
+    function toggleMoktakBeat() {
+      const btn = document.getElementById('moktakBeatBtn');
+      if (moktakBeatInterval) {
+        stopMoktakBeat();
+      } else {
+        btn.classList.add('active');
+        btn.innerHTML = '<span>⏸️</span> 목탁 멈춤';
+        playMoktakSound();
+        // 1.1초 간격으로 평온한 목탁 박자 울림
+        moktakBeatInterval = setInterval(() => {
+          playMoktakSound(640, 0.7);
+        }, 1100);
+      }
+    }
+
+    function stopMoktakBeat() {
+      if (moktakBeatInterval) {
+        clearInterval(moktakBeatInterval);
+        moktakBeatInterval = null;
+      }
+      const btn = document.getElementById('moktakBeatBtn');
+      if (btn) {
+        btn.classList.remove('active');
+        btn.innerHTML = '<span>🪵</span> 목탁 반주';
+      }
+    }
+
+    /* ========================================================
+       6. 108배 및 정근 계수기 (전면 터치 & 진동 & 맑은 목탁)
+       ======================================================== */
+    function handleBowTouch() {
+      bowCount++;
+      playMoktakSound(620, 0.85);
+
+      const display = document.getElementById('bowCountDisplay');
+      display.innerText = bowCount;
+      display.style.transform = 'scale(1.1)';
+      setTimeout(() => display.style.transform = 'scale(1)', 100);
+
+      if (bowMode === '108') {
+        if (bowCount === 108) {
+          playBellSound();
+          showToast('108배를 모두 이루셨습니다! 회향을 축하드립니다 🪷');
+          recordTodayCompletion('bow');
+        } else if (bowCount % 10 === 0) {
+          // 10배마다 조금 더 깊은 소리
+          playMoktakSound(540, 0.95);
+        }
+      }
+    }
+
+    function setBowMode(mode) {
+      bowMode = mode;
+      document.getElementById('btnMode108').classList.toggle('active', mode === '108');
+      document.getElementById('btnModeJeonggeun').classList.toggle('active', mode === 'jeonggeun');
+      
+      const label = document.getElementById('bowModeLabel');
+      const target = document.getElementById('bowTargetText');
+      const hint = document.getElementById('bowHintText');
+
+      if (mode === '108') {
+        label.innerText = '108배 절 정진';
+        target.innerText = '/ 목표 108배';
+        hint.innerText = '화면을 툭 터치하면 1배 올라갑니다';
+      } else {
+        label.innerText = '석가모니불 정근 염불';
+        target.innerText = '나무 석가모니불';
+        hint.innerText = '염불 1번마다 화면을 가볍게 두드리세요';
+      }
+      bowCount = 0;
+      document.getElementById('bowCountDisplay').innerText = 0;
+    }
+
+    function resetBowCount() {
+      bowCount = 0;
+      document.getElementById('bowCountDisplay').innerText = 0;
+      showToast('계수기가 0으로 초기화되었습니다');
+    }
+
+    function completeBowSession() {
+      if (bowCount > 0) {
+        playBellSound();
+        recordTodayCompletion('bow');
+        showToast(`${bowCount}배 정진을 회향하였습니다. 연꽃 도장이 찍혔습니다 🪷`);
+      } else {
+        showToast('정진 횟수를 채우신 후 회향해 주세요');
+      }
+    }
+
+    /* ========================================================
+       7. 참선 타이머 (은은한 범종 타종 & 원형 게이지)
+       ======================================================== */
+    let zenDuration = 600; // 10분 기본
+    let zenRemaining = 600;
+    let zenTimer = null;
+    let zenIsRunning = false;
+    const ZEN_CIRCUMFERENCE = 754; // 2 * PI * 120
+
+    function setZenDuration(sec, btn) {
+      if (zenIsRunning) return;
+      zenDuration = sec;
+      zenRemaining = sec;
+      updateZenDisplay();
+
+      document.querySelectorAll('.zen-preset-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    function updateZenDisplay() {
+      const min = Math.floor(zenRemaining / 60);
+      const s = zenRemaining % 60;
+      document.getElementById('zenTimeDisplay').innerText = 
+        `${String(min).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+      const circle = document.getElementById('zenProgressCircle');
+      const fraction = (zenDuration - zenRemaining) / zenDuration;
+      circle.style.strokeDashoffset = fraction * ZEN_CIRCUMFERENCE;
+    }
+
+    function toggleZenTimer() {
+      if (zenIsRunning) {
+        // 일시정지
+        clearInterval(zenTimer);
+        zenIsRunning = false;
+        document.getElementById('zenStatusLabel').innerText = '일시 멈춤';
+        document.getElementById('zenBtnText').innerText = '다시 이어하기';
+      } else {
+        // 시작
+        playBellSound();
+        zenIsRunning = true;
+        document.getElementById('zenStatusLabel').innerText = '입정 중 (호흡에 집중)';
+        document.getElementById('zenBtnText').innerText = '잠시 멈추기';
+
+        zenTimer = setInterval(() => {
+          zenRemaining--;
+          updateZenDisplay();
+
+          if (zenRemaining <= 0) {
+            clearInterval(zenTimer);
+            zenIsRunning = false;
+            playBellSound();
+            setTimeout(playBellSound, 2500); // 종 2타
+            document.getElementById('zenStatusLabel').innerText = '방선 (입정 마침)';
+            document.getElementById('zenBtnText').innerText = '다시 입정하기';
+            recordTodayCompletion('zen');
+            showToast('참선을 평온하게 마쳤습니다 🪷');
+            zenRemaining = zenDuration;
+            updateZenDisplay();
+          }
+        }, 1000);
+      }
+    }
+
+    /* ========================================================
+       8. 수행 일지 (달력, 연꽃 도장, 연속 정진 일수)
+       ======================================================== */
+    let currentViewDate = new Date();
+
+    function getStorageKeyForDate(dateStr) {
+      return 'diary_' + dateStr;
+    }
+
+    function recordTodayCompletion(type) {
+      const todayStr = getTodayDateStr();
+      const key = getStorageKeyForDate(todayStr);
+      let record = JSON.parse(localStorage.getItem(key) || '{}');
+      record[type] = true;
+      record.date = todayStr;
+      localStorage.setItem(key, JSON.stringify(record));
+
+      // 연속 일수 계산
+      calculateStreak();
+      renderCalendar();
+    }
+
+    function getTodayDateStr() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    }
+
+    function calculateStreak() {
+      let streak = 0;
+      let checkDate = new Date();
+      while (true) {
+        const y = checkDate.getFullYear();
+        const m = String(checkDate.getMonth()+1).padStart(2,'0');
+        const d = String(checkDate.getDate()).padStart(2,'0');
+        const str = `${y}-${m}-${d}`;
+        const data = localStorage.getItem(getStorageKeyForDate(str));
+        if (data) {
+          streak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          // 오늘 아직 안 했더라도 어제까지 했으면 유지
+          if (streak === 0) {
+            checkDate.setDate(checkDate.getDate() - 1);
+            const y2 = checkDate.getFullYear();
+            const m2 = String(checkDate.getMonth()+1).padStart(2,'0');
+            const d2 = String(checkDate.getDate()).padStart(2,'0');
+            const str2 = `${y2}-${m2}-${d2}`;
+            if (localStorage.getItem(getStorageKeyForDate(str2))) {
+              streak = 1;
+            }
+          }
+          break;
+        }
+      }
+      document.getElementById('streakCount').innerText = Math.max(1, streak);
+    }
+
+    function renderCalendar() {
+      const year = currentViewDate.getFullYear();
+      const month = currentViewDate.getMonth(); // 0-indexed
+
+      document.getElementById('calMonthTitle').innerText = `${year}년 ${month + 1}월`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+      const todayStr = getTodayDateStr();
+
+      const grid = document.getElementById('calDaysGrid');
+      grid.innerHTML = '';
+
+      // 빈칸
+      for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'cal-day-cell cal-empty';
+        grid.appendChild(emptyCell);
+      }
+
+      // 날짜 채우기
+      for (let d = 1; d <= lastDate; d++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const cell = document.createElement('div');
+        cell.className = 'cal-day-cell';
+        if (dateStr === todayStr) cell.classList.add('today');
+
+        const record = localStorage.getItem(getStorageKeyForDate(dateStr));
+        if (record) {
+          cell.classList.add('completed');
+          cell.innerHTML = `<span>${d}</span><span class="cal-day-stamp">🪷</span>`;
+        } else {
+          cell.innerHTML = `<span>${d}</span>`;
+        }
+
+        cell.onclick = () => {
+          showToast(`${month+1}월 ${d}일 수행 기록입니다`);
+        };
+        grid.appendChild(cell);
+      }
+    }
+
+    function changeMonth(delta) {
+      currentViewDate.setMonth(currentViewDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function saveTodayDiary() {
+      const val = document.getElementById('todayDiaryInput').value.trim();
+      const todayStr = getTodayDateStr();
+      const key = getStorageKeyForDate(todayStr);
+      let record = JSON.parse(localStorage.getItem(key) || '{}');
+      record.note = val;
+      record.date = todayStr;
+      localStorage.setItem(key, JSON.stringify(record));
+      recordTodayCompletion('note');
+      showToast('오늘의 발원 일기가 안전하게 저장되었습니다 🪷');
+    }
+
+    /* ========================================================
+       9. 경전 본문 직접 수정 모달 (사진 보고 고쳐 넣기)
+       ======================================================== */
+    let editingStepKey = 'step1';
+
+    function openTextEditorModal() {
+      editingStepKey = currentStep === 5 ? getTodaySutraKey() : ('step' + currentStep);
+      const data = getSutraData(editingStepKey);
+      document.getElementById('modalEditStepTitle').innerText = data.title + ' 본문 수정';
+      document.getElementById('modalEditTextarea').value = data.text;
+      document.getElementById('textEditModal').classList.add('active');
+    }
+
+    function closeTextEditorModal() {
+      document.getElementById('textEditModal').classList.remove('active');
+    }
+
+    function saveEditedSutraText() {
+      const newText = document.getElementById('modalEditTextarea').value;
+      const data = getSutraData(editingStepKey);
+      data.text = newText;
+      localStorage.setItem('sutra_' + editingStepKey, JSON.stringify(data));
+      closeTextEditorModal();
+      renderPrayerStep(currentStep);
+      showToast('수정하신 경전 구절이 저장되었습니다 🪷');
+    }
+
+    /* ========================================================
+       10. 글자 크기, 테마, 편의 기능
+       ======================================================== */
+    function setFontScale(scale, btn) {
+      document.documentElement.style.setProperty('--font-scale', scale);
+      document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      localStorage.setItem('font_scale', scale);
+      showToast('글씨 크기가 조절되었습니다');
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const isHanji = body.classList.toggle('theme-hanji');
+      const btn = document.getElementById('themeToggleBtn');
+      btn.innerHTML = isHanji ? '☀️' : '🌙';
+      localStorage.setItem('theme_hanji', isHanji ? 'yes' : 'no');
+      showToast(isHanji ? '따뜻한 한지 베이지 모드' : '새벽 먹색 다크 모드');
+    }
+
+    function openInstallGuide() {
+      document.getElementById('installGuideModal').classList.add('active');
+    }
+
+    function closeInstallGuide() {
+      document.getElementById('installGuideModal').classList.remove('active');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastMsg');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    /* ========================================================
+       11. 앱 초기화
+       ======================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      // 오늘 날짜 및 요일별 금강경 분량 표시
+      const now = new Date();
+      const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+      const dayName = days[now.getDay()];
+      document.getElementById('homeTodayDate').innerText = 
+        `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${dayName}`;
+
+      const sutraKey = getTodaySutraKey();
+      const sutraData = getSutraData(sutraKey);
+      document.getElementById('sutraDayTitle').innerText = sutraData.title;
+
+      // 저장된 글씨 크기 복원
+      const savedScale = localStorage.getItem('font_scale');
+      if (savedScale) {
+        document.documentElement.style.setProperty('--font-scale', savedScale);
+      }
+
+      // 저장된 테마 복원
+      if (localStorage.getItem('theme_hanji') === 'yes') {
+        document.body.classList.add('theme-hanji');
+        document.getElementById('themeToggleBtn').innerHTML = '☀️';
+      }
+
+      calculateStreak();
+      renderCalendar();
+
+      // PWA 서비스워커 등록
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW fail', err));
+      }
+    });
+  </script>
+</body>
+</html>
