@@ -1668,7 +1668,7 @@
     /* ========================================================
        4. 예불 9단계 전체 진행 로직 (원본 책자 실물 대조)
        ======================================================== */
-    function renderPrayerStep(step, overrideKey = null) {
+    function renderPrayerStep(step, overrideKey = null, autoPlay = false) {
       currentStep = step;
       let stepKey = 'step' + step;
       
@@ -1691,8 +1691,8 @@
         if (daySelector) daySelector.style.display = 'none';
       }
 
-      // 순서별 독송 음원 플레이어 바 연동 (3번, 4번, 6번, 7번 등)
-      setupStepAudioPlayer(stepKey);
+      // 순서별 독송 음원 플레이어 바 연동 및 자동 재생
+      setupStepAudioPlayer(stepKey, autoPlay);
 
       const data = getSutraData(stepKey) || DEFAULT_SUTRAS[stepKey];
       if (!data) return;
@@ -1746,26 +1746,23 @@
 
     // 7단계 금강경 요일별 분량 바로가기 탭 클릭 핸들러
     function selectSutraDay(dayCode) {
-      playMoktakSound();
       currentSutraDayKey = 'step7_' + dayCode;
-      renderPrayerStep(7, currentSutraDayKey);
+      renderPrayerStep(7, currentSutraDayKey, true);
     }
 
     function nextPrayerStep() {
-      playMoktakSound();
       if (currentStep < 9) {
         currentStep++;
-        renderPrayerStep(currentStep);
+        renderPrayerStep(currentStep, null, true);
       } else {
         completePrayer();
       }
     }
 
     function prevPrayerStep() {
-      playMoktakSound();
       if (currentStep > 1) {
         currentStep--;
-        renderPrayerStep(currentStep);
+        renderPrayerStep(currentStep, null, true);
       }
     }
 
@@ -1782,7 +1779,20 @@
     /* ========================================================
        순서별 독송 오디오 플레이어 제어 (3번, 4번, 6번, 7번 등)
        ======================================================== */
+    /* ========================================================
+       순서별 독송 오디오 플레이어 제어 (1~8번 순서)
+       ======================================================== */
     const PRAYER_STEP_AUDIOS = {
+      'step1': {
+        src: 'assets/step1_dage.mp3',
+        title: '1. 다게 및 칠정례 (지용법사님)',
+        badge: '🎧 1번 조석예불문 음원'
+      },
+      'step2': {
+        src: 'assets/step2_haengseon.mp3',
+        title: '2. 행선축원 (지용법사님)',
+        badge: '🎧 2번 행선축원 음원'
+      },
       'step3': {
         src: 'assets/step3_isan.mp3',
         title: '3. 이산선사 발원문 (지용법사님)',
@@ -1790,8 +1800,13 @@
       },
       'step4': {
         src: 'assets/step4_banya.mp3',
-        title: '4. 우리말 반야심경 (송광사)',
+        title: '4. 우리말 반야심경 (지용법사님)',
         badge: '🎧 4번 반야심경 독송 음원'
+      },
+      'step5': {
+        src: 'assets/step5_hanmun_banya.mp3',
+        title: '5. 한문 반야심경',
+        badge: '🎧 5번 한문 반야심경 음원'
       },
       'step6': {
         src: 'assets/step6_doksong.mp3',
@@ -1802,25 +1817,32 @@
         src: 'assets/sutra_day1.mp3',
         title: '7. 금강경 1일차 목탁 독송 (10분 46초)',
         badge: '🎧 7번 금강경 1일차 추천 음원'
+      },
+      'step8': {
+        src: 'assets/step8_jeonggeun.mp3',
+        title: '8. 석가모니불 정근',
+        badge: '🎧 8번 석가모니불 정근 음원'
       }
     };
     let currentLoadedAudioKey = null;
 
-    function setupStepAudioPlayer(stepKey) {
+    function setupStepAudioPlayer(stepKey, autoPlay = false) {
       const audioBar = document.getElementById('sutraAudioPlayerBar');
       const audioConfig = PRAYER_STEP_AUDIOS[stepKey];
 
       if (audioConfig) {
         if (audioBar) audioBar.style.display = 'block';
+        const audio = document.getElementById('sutraAudioElem');
+        const title = document.getElementById('sutraAudioTitle');
+        const badge = document.getElementById('sutraAudioBadge');
+        const curTime = document.getElementById('sutraAudioCurrentTime');
+        const durTime = document.getElementById('sutraAudioDuration');
+        const slider = document.getElementById('sutraAudioSlider');
+        const btn = document.getElementById('sutraAudioPlayBtn');
+
         if (currentLoadedAudioKey !== stepKey) {
           stopSutraAudio();
           currentLoadedAudioKey = stepKey;
-          const audio = document.getElementById('sutraAudioElem');
-          const title = document.getElementById('sutraAudioTitle');
-          const badge = document.getElementById('sutraAudioBadge');
-          const curTime = document.getElementById('sutraAudioCurrentTime');
-          const durTime = document.getElementById('sutraAudioDuration');
-          const slider = document.getElementById('sutraAudioSlider');
 
           if (audio) {
             audio.src = audioConfig.src;
@@ -1831,6 +1853,32 @@
           if (curTime) curTime.innerText = '00:00';
           if (durTime) durTime.innerText = '--:--';
           if (slider) slider.value = 0;
+        }
+
+        // 사용자가 단계 이동 또는 예불 시작을 눌렀을 경우 자동 재생
+        if (autoPlay && audio) {
+          if (btn) {
+            btn.innerHTML = '⏳ 준비 중...';
+            btn.style.background = '#d4af37';
+            btn.style.color = '#171513';
+          }
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              if (btn) {
+                btn.innerHTML = '⏸️ 일시정지';
+                btn.style.background = '#e07a5f';
+                btn.style.color = '#fff';
+              }
+            }).catch(err => {
+              console.warn('Auto-play blocked or waiting:', err);
+              if (btn) {
+                btn.innerHTML = '▶ 독송 듣기';
+                btn.style.background = '';
+                btn.style.color = '';
+              }
+            });
+          }
         }
       } else {
         if (audioBar) audioBar.style.display = 'none';
@@ -1947,7 +1995,7 @@
     function startDailyPrayer() {
       currentStep = 1;
       switchTab('tab-prayer');
-      playBellSound();
+      renderPrayerStep(1, null, true);
       showToast('경건한 마음으로 아침 예불을 시작합니다 🪷');
     }
 
